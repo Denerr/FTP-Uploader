@@ -32,7 +32,7 @@
             tpgImagens = new TabPage();
             lblProgresso = new Label();
             progressBar1 = new ProgressBar();
-            listView1 = new ListView();
+            lvArquivos = new ListView();
             flpContainer = new FlowLayoutPanel();
             btnSelecionar = new Button();
             btnRemoverSel = new Button();
@@ -40,6 +40,8 @@
             btnEnviar = new Button();
             btnCancelar = new Button();
             btnCopiarUrls = new Button();
+            chkValidarTipo = new CheckBox();
+            chkSobrescrever = new CheckBox();
             tpgConfigs = new TabPage();
             button1 = new Button();
             lblSenha = new Label();
@@ -56,12 +58,21 @@
             textBox2 = new TextBox();
             textBox1 = new TextBox();
             txtHost = new TextBox();
-            chkValidarTipo = new CheckBox();
-            chkSobrescrever = new CheckBox();
+            Arquivo = new ColumnHeader();
+            Tamanho = new ColumnHeader();
+            Status = new ColumnHeader();
+            URL = new ColumnHeader();
+            numTimeoutMs = new NumericUpDown();
+            lblTimeout = new Label();
+            lblTamMax = new Label();
+            numTamMaxMb = new NumericUpDown();
+            openFileDialog1 = new OpenFileDialog();
             tcrtlPrincipal.SuspendLayout();
             tpgImagens.SuspendLayout();
             flpContainer.SuspendLayout();
             tpgConfigs.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)numTimeoutMs).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)numTamMaxMb).BeginInit();
             SuspendLayout();
             // 
             // tcrtlPrincipal
@@ -79,7 +90,7 @@
             // 
             tpgImagens.Controls.Add(lblProgresso);
             tpgImagens.Controls.Add(progressBar1);
-            tpgImagens.Controls.Add(listView1);
+            tpgImagens.Controls.Add(lvArquivos);
             tpgImagens.Controls.Add(flpContainer);
             tpgImagens.Location = new Point(4, 29);
             tpgImagens.Name = "tpgImagens";
@@ -108,14 +119,18 @@
             progressBar1.Style = ProgressBarStyle.Continuous;
             progressBar1.TabIndex = 2;
             // 
-            // listView1
+            // lvArquivos
             // 
-            listView1.Dock = DockStyle.Fill;
-            listView1.Location = new Point(3, 84);
-            listView1.Name = "listView1";
-            listView1.Size = new Size(1097, 459);
-            listView1.TabIndex = 1;
-            listView1.UseCompatibleStateImageBehavior = false;
+            lvArquivos.Columns.AddRange(new ColumnHeader[] { Arquivo, Tamanho, Status, URL });
+            lvArquivos.Dock = DockStyle.Fill;
+            lvArquivos.FullRowSelect = true;
+            lvArquivos.GridLines = true;
+            lvArquivos.Location = new Point(3, 84);
+            lvArquivos.Name = "lvArquivos";
+            lvArquivos.Size = new Size(1097, 459);
+            lvArquivos.TabIndex = 1;
+            lvArquivos.UseCompatibleStateImageBehavior = false;
+            lvArquivos.View = View.Details;
             // 
             // flpContainer
             // 
@@ -188,12 +203,36 @@
             btnCopiarUrls.Text = "Copiar Urls";
             btnCopiarUrls.UseVisualStyleBackColor = true;
             // 
+            // chkValidarTipo
+            // 
+            chkValidarTipo.AutoSize = true;
+            chkValidarTipo.Location = new Point(3, 44);
+            chkValidarTipo.Name = "chkValidarTipo";
+            chkValidarTipo.Size = new Size(188, 24);
+            chkValidarTipo.TabIndex = 1;
+            chkValidarTipo.Text = "Validar tipo da Imagem";
+            chkValidarTipo.UseVisualStyleBackColor = true;
+            // 
+            // chkSobrescrever
+            // 
+            chkSobrescrever.AutoSize = true;
+            chkSobrescrever.Location = new Point(197, 44);
+            chkSobrescrever.Name = "chkSobrescrever";
+            chkSobrescrever.Size = new Size(177, 24);
+            chkSobrescrever.TabIndex = 2;
+            chkSobrescrever.Text = "Sobrescrever se existir";
+            chkSobrescrever.UseVisualStyleBackColor = true;
+            // 
             // tpgConfigs
             // 
+            tpgConfigs.Controls.Add(numTamMaxMb);
+            tpgConfigs.Controls.Add(numTimeoutMs);
             tpgConfigs.Controls.Add(button1);
             tpgConfigs.Controls.Add(lblSenha);
             tpgConfigs.Controls.Add(lblUsuario);
+            tpgConfigs.Controls.Add(lblTamMax);
             tpgConfigs.Controls.Add(lblProtocolo);
+            tpgConfigs.Controls.Add(lblTimeout);
             tpgConfigs.Controls.Add(lblNumPorta);
             tpgConfigs.Controls.Add(lblUrl);
             tpgConfigs.Controls.Add(lblPasta);
@@ -301,6 +340,7 @@
             textBox4.Name = "textBox4";
             textBox4.Size = new Size(237, 27);
             textBox4.TabIndex = 0;
+            textBox4.UseSystemPasswordChar = true;
             // 
             // textBox3
             // 
@@ -337,25 +377,62 @@
             txtHost.Size = new Size(279, 27);
             txtHost.TabIndex = 0;
             // 
-            // chkValidarTipo
+            // Arquivo
             // 
-            chkValidarTipo.AutoSize = true;
-            chkValidarTipo.Location = new Point(3, 44);
-            chkValidarTipo.Name = "chkValidarTipo";
-            chkValidarTipo.Size = new Size(188, 24);
-            chkValidarTipo.TabIndex = 1;
-            chkValidarTipo.Text = "Validar tipo da Imagem";
-            chkValidarTipo.UseVisualStyleBackColor = true;
+            Arquivo.Text = "Arquivo";
+            Arquivo.Width = 200;
             // 
-            // chkSobrescrever
+            // Tamanho
             // 
-            chkSobrescrever.AutoSize = true;
-            chkSobrescrever.Location = new Point(197, 44);
-            chkSobrescrever.Name = "chkSobrescrever";
-            chkSobrescrever.Size = new Size(177, 24);
-            chkSobrescrever.TabIndex = 2;
-            chkSobrescrever.Text = "Sobrescrever se existir";
-            chkSobrescrever.UseVisualStyleBackColor = true;
+            Tamanho.Text = "Tamanho";
+            Tamanho.Width = 350;
+            // 
+            // Status
+            // 
+            Status.Text = "Status";
+            Status.Width = 150;
+            // 
+            // URL
+            // 
+            URL.Text = "URL";
+            URL.Width = 300;
+            // 
+            // numTimeoutMs
+            // 
+            numTimeoutMs.Location = new Point(798, 164);
+            numTimeoutMs.Name = "numTimeoutMs";
+            numTimeoutMs.Size = new Size(168, 27);
+            numTimeoutMs.TabIndex = 4;
+            // 
+            // lblTimeout
+            // 
+            lblTimeout.AutoSize = true;
+            lblTimeout.Location = new Point(824, 130);
+            lblTimeout.Name = "lblTimeout";
+            lblTimeout.Size = new Size(112, 20);
+            lblTimeout.TabIndex = 2;
+            lblTimeout.Text = "Limite Timeout:";
+            // 
+            // lblTamMax
+            // 
+            lblTamMax.AutoSize = true;
+            lblTamMax.Location = new Point(517, 130);
+            lblTamMax.Name = "lblTamMax";
+            lblTamMax.Size = new Size(217, 20);
+            lblTamMax.TabIndex = 2;
+            lblTamMax.Text = "Tamanho Máximo por Arq.(Mb)";
+            // 
+            // numTamMaxMb
+            // 
+            numTamMaxMb.Location = new Point(540, 164);
+            numTamMaxMb.Name = "numTamMaxMb";
+            numTamMaxMb.Size = new Size(168, 27);
+            numTamMaxMb.TabIndex = 4;
+            // 
+            // openFileDialog1
+            // 
+            openFileDialog1.FileName = "openFileDialog1";
+            openFileDialog1.Multiselect = true;
             // 
             // Form1
             // 
@@ -372,6 +449,8 @@
             flpContainer.PerformLayout();
             tpgConfigs.ResumeLayout(false);
             tpgConfigs.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)numTimeoutMs).EndInit();
+            ((System.ComponentModel.ISupportInitialize)numTamMaxMb).EndInit();
             ResumeLayout(false);
         }
 
@@ -392,7 +471,7 @@
         private Button btnEnviar;
         private Button btnCancelar;
         private Button btnCopiarUrls;
-        private ListView listView1;
+        private ListView lvArquivos;
         private Label lblSenha;
         private Label lblUsuario;
         private Label lblProtocolo;
@@ -407,5 +486,14 @@
         private ProgressBar progressBar1;
         private CheckBox chkValidarTipo;
         private CheckBox chkSobrescrever;
+        private ColumnHeader Arquivo;
+        private ColumnHeader Tamanho;
+        private ColumnHeader Status;
+        private ColumnHeader URL;
+        private NumericUpDown numTamMaxMb;
+        private NumericUpDown numTimeoutMs;
+        private Label lblTamMax;
+        private Label lblTimeout;
+        private OpenFileDialog openFileDialog1;
     }
 }
