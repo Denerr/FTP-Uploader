@@ -33,6 +33,10 @@
             lblProgresso = new Label();
             progressBar1 = new ProgressBar();
             lvArquivos = new ListView();
+            Arquivo = new ColumnHeader();
+            Tamanho = new ColumnHeader();
+            Status = new ColumnHeader();
+            URL = new ColumnHeader();
             flpContainer = new FlowLayoutPanel();
             btnSelecionar = new Button();
             btnRemoverSel = new Button();
@@ -43,36 +47,33 @@
             chkValidarTipo = new CheckBox();
             chkSobrescrever = new CheckBox();
             tpgConfigs = new TabPage();
-            button1 = new Button();
+            numTamMaxMb = new NumericUpDown();
+            numTimeoutMs = new NumericUpDown();
+            btnTesteConect = new Button();
             lblSenha = new Label();
             lblUsuario = new Label();
+            lblTamMax = new Label();
             lblProtocolo = new Label();
+            lblTimeout = new Label();
             lblNumPorta = new Label();
             lblUrl = new Label();
             lblPasta = new Label();
             lblHost = new Label();
             cboProtocolo = new ComboBox();
-            textBox4 = new TextBox();
-            textBox3 = new TextBox();
+            txtSenha = new TextBox();
+            txtUsuario = new TextBox();
             txtPorta = new TextBox();
-            textBox2 = new TextBox();
-            textBox1 = new TextBox();
+            txtBaseUrl = new TextBox();
+            txtCaminhoPasta = new TextBox();
             txtHost = new TextBox();
-            Arquivo = new ColumnHeader();
-            Tamanho = new ColumnHeader();
-            Status = new ColumnHeader();
-            URL = new ColumnHeader();
-            numTimeoutMs = new NumericUpDown();
-            lblTimeout = new Label();
-            lblTamMax = new Label();
-            numTamMaxMb = new NumericUpDown();
             openFileDialog1 = new OpenFileDialog();
+            backgroundWorker = new System.ComponentModel.BackgroundWorker();
             tcrtlPrincipal.SuspendLayout();
             tpgImagens.SuspendLayout();
             flpContainer.SuspendLayout();
             tpgConfigs.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)numTimeoutMs).BeginInit();
             ((System.ComponentModel.ISupportInitialize)numTamMaxMb).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)numTimeoutMs).BeginInit();
             SuspendLayout();
             // 
             // tcrtlPrincipal
@@ -131,6 +132,26 @@
             lvArquivos.TabIndex = 1;
             lvArquivos.UseCompatibleStateImageBehavior = false;
             lvArquivos.View = View.Details;
+            // 
+            // Arquivo
+            // 
+            Arquivo.Text = "Arquivo";
+            Arquivo.Width = 200;
+            // 
+            // Tamanho
+            // 
+            Tamanho.Text = "Tamanho";
+            Tamanho.Width = 350;
+            // 
+            // Status
+            // 
+            Status.Text = "Status";
+            Status.Width = 150;
+            // 
+            // URL
+            // 
+            URL.Text = "URL";
+            URL.Width = 300;
             // 
             // flpContainer
             // 
@@ -227,7 +248,7 @@
             // 
             tpgConfigs.Controls.Add(numTamMaxMb);
             tpgConfigs.Controls.Add(numTimeoutMs);
-            tpgConfigs.Controls.Add(button1);
+            tpgConfigs.Controls.Add(btnTesteConect);
             tpgConfigs.Controls.Add(lblSenha);
             tpgConfigs.Controls.Add(lblUsuario);
             tpgConfigs.Controls.Add(lblTamMax);
@@ -238,11 +259,11 @@
             tpgConfigs.Controls.Add(lblPasta);
             tpgConfigs.Controls.Add(lblHost);
             tpgConfigs.Controls.Add(cboProtocolo);
-            tpgConfigs.Controls.Add(textBox4);
-            tpgConfigs.Controls.Add(textBox3);
+            tpgConfigs.Controls.Add(txtSenha);
+            tpgConfigs.Controls.Add(txtUsuario);
             tpgConfigs.Controls.Add(txtPorta);
-            tpgConfigs.Controls.Add(textBox2);
-            tpgConfigs.Controls.Add(textBox1);
+            tpgConfigs.Controls.Add(txtBaseUrl);
+            tpgConfigs.Controls.Add(txtCaminhoPasta);
             tpgConfigs.Controls.Add(txtHost);
             tpgConfigs.Location = new Point(4, 29);
             tpgConfigs.Name = "tpgConfigs";
@@ -252,14 +273,29 @@
             tpgConfigs.Text = "Configurações";
             tpgConfigs.UseVisualStyleBackColor = true;
             // 
-            // button1
+            // numTamMaxMb
             // 
-            button1.Location = new Point(860, 279);
-            button1.Name = "button1";
-            button1.Size = new Size(175, 40);
-            button1.TabIndex = 3;
-            button1.Text = "Testar Conexão";
-            button1.UseVisualStyleBackColor = true;
+            numTamMaxMb.Location = new Point(540, 164);
+            numTamMaxMb.Name = "numTamMaxMb";
+            numTamMaxMb.Size = new Size(168, 27);
+            numTamMaxMb.TabIndex = 4;
+            // 
+            // numTimeoutMs
+            // 
+            numTimeoutMs.Location = new Point(798, 164);
+            numTimeoutMs.Name = "numTimeoutMs";
+            numTimeoutMs.Size = new Size(168, 27);
+            numTimeoutMs.TabIndex = 4;
+            // 
+            // btnTesteConect
+            // 
+            btnTesteConect.Location = new Point(860, 279);
+            btnTesteConect.Name = "btnTesteConect";
+            btnTesteConect.Size = new Size(175, 40);
+            btnTesteConect.TabIndex = 3;
+            btnTesteConect.Text = "Testar Conexão";
+            btnTesteConect.UseVisualStyleBackColor = true;
+            btnTesteConect.Click += btnTesteConect_Click;
             // 
             // lblSenha
             // 
@@ -279,6 +315,15 @@
             lblUsuario.TabIndex = 2;
             lblUsuario.Text = "Usuário:";
             // 
+            // lblTamMax
+            // 
+            lblTamMax.AutoSize = true;
+            lblTamMax.Location = new Point(517, 130);
+            lblTamMax.Name = "lblTamMax";
+            lblTamMax.Size = new Size(217, 20);
+            lblTamMax.TabIndex = 2;
+            lblTamMax.Text = "Tamanho Máximo por Arq.(Mb)";
+            // 
             // lblProtocolo
             // 
             lblProtocolo.AutoSize = true;
@@ -287,6 +332,15 @@
             lblProtocolo.Size = new Size(158, 20);
             lblProtocolo.TabIndex = 2;
             lblProtocolo.Text = "Selecione o Protocolo:";
+            // 
+            // lblTimeout
+            // 
+            lblTimeout.AutoSize = true;
+            lblTimeout.Location = new Point(824, 130);
+            lblTimeout.Name = "lblTimeout";
+            lblTimeout.Size = new Size(112, 20);
+            lblTimeout.TabIndex = 2;
+            lblTimeout.Text = "Limite Timeout:";
             // 
             // lblNumPorta
             // 
@@ -334,20 +388,20 @@
             cboProtocolo.TabIndex = 1;
             cboProtocolo.SelectedIndexChanged += cboProtocolo_SelectedIndexChanged;
             // 
-            // textBox4
+            // txtSenha
             // 
-            textBox4.Location = new Point(798, 76);
-            textBox4.Name = "textBox4";
-            textBox4.Size = new Size(237, 27);
-            textBox4.TabIndex = 0;
-            textBox4.UseSystemPasswordChar = true;
+            txtSenha.Location = new Point(798, 76);
+            txtSenha.Name = "txtSenha";
+            txtSenha.Size = new Size(237, 27);
+            txtSenha.TabIndex = 0;
+            txtSenha.UseSystemPasswordChar = true;
             // 
-            // textBox3
+            // txtUsuario
             // 
-            textBox3.Location = new Point(505, 76);
-            textBox3.Name = "textBox3";
-            textBox3.Size = new Size(238, 27);
-            textBox3.TabIndex = 0;
+            txtUsuario.Location = new Point(505, 76);
+            txtUsuario.Name = "txtUsuario";
+            txtUsuario.Size = new Size(238, 27);
+            txtUsuario.TabIndex = 0;
             // 
             // txtPorta
             // 
@@ -356,19 +410,19 @@
             txtPorta.Size = new Size(107, 27);
             txtPorta.TabIndex = 0;
             // 
-            // textBox2
+            // txtBaseUrl
             // 
-            textBox2.Location = new Point(343, 286);
-            textBox2.Name = "textBox2";
-            textBox2.Size = new Size(279, 27);
-            textBox2.TabIndex = 0;
+            txtBaseUrl.Location = new Point(343, 286);
+            txtBaseUrl.Name = "txtBaseUrl";
+            txtBaseUrl.Size = new Size(279, 27);
+            txtBaseUrl.TabIndex = 0;
             // 
-            // textBox1
+            // txtCaminhoPasta
             // 
-            textBox1.Location = new Point(20, 286);
-            textBox1.Name = "textBox1";
-            textBox1.Size = new Size(279, 27);
-            textBox1.TabIndex = 0;
+            txtCaminhoPasta.Location = new Point(20, 286);
+            txtCaminhoPasta.Name = "txtCaminhoPasta";
+            txtCaminhoPasta.Size = new Size(279, 27);
+            txtCaminhoPasta.TabIndex = 0;
             // 
             // txtHost
             // 
@@ -377,62 +431,18 @@
             txtHost.Size = new Size(279, 27);
             txtHost.TabIndex = 0;
             // 
-            // Arquivo
-            // 
-            Arquivo.Text = "Arquivo";
-            Arquivo.Width = 200;
-            // 
-            // Tamanho
-            // 
-            Tamanho.Text = "Tamanho";
-            Tamanho.Width = 350;
-            // 
-            // Status
-            // 
-            Status.Text = "Status";
-            Status.Width = 150;
-            // 
-            // URL
-            // 
-            URL.Text = "URL";
-            URL.Width = 300;
-            // 
-            // numTimeoutMs
-            // 
-            numTimeoutMs.Location = new Point(798, 164);
-            numTimeoutMs.Name = "numTimeoutMs";
-            numTimeoutMs.Size = new Size(168, 27);
-            numTimeoutMs.TabIndex = 4;
-            // 
-            // lblTimeout
-            // 
-            lblTimeout.AutoSize = true;
-            lblTimeout.Location = new Point(824, 130);
-            lblTimeout.Name = "lblTimeout";
-            lblTimeout.Size = new Size(112, 20);
-            lblTimeout.TabIndex = 2;
-            lblTimeout.Text = "Limite Timeout:";
-            // 
-            // lblTamMax
-            // 
-            lblTamMax.AutoSize = true;
-            lblTamMax.Location = new Point(517, 130);
-            lblTamMax.Name = "lblTamMax";
-            lblTamMax.Size = new Size(217, 20);
-            lblTamMax.TabIndex = 2;
-            lblTamMax.Text = "Tamanho Máximo por Arq.(Mb)";
-            // 
-            // numTamMaxMb
-            // 
-            numTamMaxMb.Location = new Point(540, 164);
-            numTamMaxMb.Name = "numTamMaxMb";
-            numTamMaxMb.Size = new Size(168, 27);
-            numTamMaxMb.TabIndex = 4;
-            // 
             // openFileDialog1
             // 
             openFileDialog1.FileName = "openFileDialog1";
             openFileDialog1.Multiselect = true;
+            // 
+            // backgroundWorker
+            // 
+            backgroundWorker.WorkerReportsProgress = true;
+            backgroundWorker.WorkerSupportsCancellation = true;
+            backgroundWorker.DoWork += backgroundWorker_DoWork;
+            backgroundWorker.ProgressChanged += backgroundWorker_ProgressChanged;
+            backgroundWorker.RunWorkerCompleted += backgroundWorker_RunWorkerCompleted;
             // 
             // Form1
             // 
@@ -449,8 +459,8 @@
             flpContainer.PerformLayout();
             tpgConfigs.ResumeLayout(false);
             tpgConfigs.PerformLayout();
-            ((System.ComponentModel.ISupportInitialize)numTimeoutMs).EndInit();
             ((System.ComponentModel.ISupportInitialize)numTamMaxMb).EndInit();
+            ((System.ComponentModel.ISupportInitialize)numTimeoutMs).EndInit();
             ResumeLayout(false);
         }
 
@@ -461,8 +471,8 @@
         private TabPage tpgConfigs;
         private FlowLayoutPanel flpContainer;
         private ComboBox cboProtocolo;
-        private TextBox textBox4;
-        private TextBox textBox3;
+        private TextBox txtSenha;
+        private TextBox txtUsuario;
         private TextBox txtPorta;
         private TextBox txtHost;
         private Button btnSelecionar;
@@ -479,9 +489,9 @@
         private Label lblHost;
         private Label lblUrl;
         private Label lblPasta;
-        private TextBox textBox2;
-        private TextBox textBox1;
-        private Button button1;
+        private TextBox txtBaseUrl;
+        private TextBox txtCaminhoPasta;
+        private Button btnTesteConect;
         private Label lblProgresso;
         private ProgressBar progressBar1;
         private CheckBox chkValidarTipo;
@@ -495,5 +505,6 @@
         private Label lblTamMax;
         private Label lblTimeout;
         private OpenFileDialog openFileDialog1;
+        private System.ComponentModel.BackgroundWorker backgroundWorker;
     }
 }
