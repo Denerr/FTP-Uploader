@@ -187,6 +187,7 @@
             btnRemoverSel.TabIndex = 0;
             btnRemoverSel.Text = "Remover Selecionados";
             btnRemoverSel.UseVisualStyleBackColor = true;
+            btnRemoverSel.Click += btnRemoverSel_Click;
             // 
             // btnLimpaLista
             // 
@@ -196,6 +197,7 @@
             btnLimpaLista.TabIndex = 0;
             btnLimpaLista.Text = "Limpar Lista";
             btnLimpaLista.UseVisualStyleBackColor = true;
+            btnLimpaLista.Click += btnLimpaLista_Click;
             // 
             // btnEnviar
             // 
@@ -205,6 +207,7 @@
             btnEnviar.TabIndex = 0;
             btnEnviar.Text = "Enviar";
             btnEnviar.UseVisualStyleBackColor = true;
+            btnEnviar.Click += btnEnviar_Click;
             // 
             // btnCancelar
             // 
