@@ -21,8 +21,31 @@ namespace FTP_Uploader
             public string Protocol { get; set; } // "FTP" or "SFTP"
             public string Filename { get; set; }
             public string FullName { get; set; }
+            public string BasicPublicUrl { get; set; }
 
         }
+
+        FTPSetting _ftp = new FTPSetting
+        {
+            Host = "147.79.95.20",
+            Username = "u861738622",
+            Password = "Carona@#@#7339",
+            Port = "21",
+            Protocol = "FTP",
+            RemotePath = "/domains/scotconsultoria.com.br/public_html/bancoImagensUP",
+            BasicPublicUrl = "https://scotconsultoria.com.br/bancoImagensUP/"
+        };
+
+        FTPSetting _ftp_teste = new FTPSetting
+        {
+            Host = "ftp.scot.agropecuaria.ws",
+            Username = "scot",
+            Password = "Malboro@102030",
+            Port = "80",
+            Protocol = "FTP",
+            RemotePath = "/public_html/dener-teste",
+            BasicPublicUrl = "http://scot.agropecuaria.ws/dener-teste/"
+        };
 
         private void EnsureListViewConfigured()
         {
@@ -111,17 +134,139 @@ namespace FTP_Uploader
 
         private void backgroundWorker_DoWork(object sender, System.ComponentModel.DoWorkEventArgs e)
         {
-            var args = ()
+            var arquivos = e.Argument as List<string>;
+            var linksGerados = new List<string>();
+
+            int total = arquivos.Count;
+            for (int i = 0; i <total; i++)
+            {
+                string fullPath = arquivos[i];
+                string fileName = Path.GetFileName(fullPath);
+
+                try
+                {
+                    if (_ftp_teste.Protocol != "FTP")
+                    {
+                        throw new NotSupportedException("Somente protocolo FTP simples implementado até o momento.");
+                    }
+
+                    string remoteUri = $"ftp://{_ftp_teste.Host}:{_ftp_teste.Port}{_ftp_teste.RemotePath}/{Uri.EscapeDataString(fileName)}";
+
+                    // Prepara a request
+                    FtpWebRequest req = (FtpWebRequest)WebRequest.Create(remoteUri);
+                    req.Method = WebRequestMethods.Ftp.UploadFile;
+                    req.Credentials = new NetworkCredential(_ftp_teste.Username, _ftp_teste.Password);
+                    req.UseBinary = true;
+                    req.KeepAlive = false;
+                    req.EnableSsl = false; // mude para true se for FTPS
+                    req.Timeout = 20000;
+
+                    // Envio em chunks
+                    const int bufferSize = 32 * 1024; //32KB
+                    byte[] buffer = new byte[bufferSize];
+                    long totalBytes = new FileInfo(fullPath).Length;
+                    long sent = 0;
+
+                    using (var fs = new FileStream(fullPath, FileMode.Open, FileAccess.Read))
+                    using (var rs = req.GetRequestStream())
+                    {
+                        int read;
+                        while ((read = fs.Read(buffer, 0, buffer.Length)) > 0)
+                        {
+                            rs.Write(buffer, 0, read);
+                            sent += read;
+
+                            // Progresso geral (0..100)
+                            int overallPct = (int)((i + (sent / (double)totalBytes)) / total * 100.0);
+
+                            // Reporta progresso do item i (UserState carrega índice, status, url provisória vazia)
+                            backgroundWorker.ReportProgress(
+                                overallPct,
+                                Tuple.Create(i, $"enviando... {(int)(sent * 100.0 / totalBytes)}%", "")
+                            );
+                        }
+                    }
+
+                    using (var resp = (FtpWebResponse)req.GetResponse())
+                    {
+                        // Se chegou aqui, deu certo
+                    }
+
+                    // Monta o link público presumindo public_html => / no site
+                    string linkPublico = $"{_ftp_teste.BasicPublicUrl}/{Uri.EscapeUriString(fileName)}";
+                    linksGerados.Add(linkPublico);
+
+                    // Atualiza status: enviado
+                    backgroundWorker.ReportProgress(
+                        (int)((i + 1) / (double)total * 100.0),
+                        Tuple.Create(i, "enviado", linkPublico)
+                    );
+                }
+                catch (Exception ex)
+                {
+                    // Caso falhe, atualiza o status para erro
+
+                    backgroundWorker.ReportProgress(
+                        (int)((i + 1) / (double)total * 100.0),
+                        Tuple.Create(i, $"erro: {ex.Message}", "")
+                    );
+                }
+            }
+
+            e.Result = linksGerados;
         }
 
         private void backgroundWorker_ProgressChanged(object sender, System.ComponentModel.ProgressChangedEventArgs e)
         {
             lblProgresso.Text = $"Progresso: {e.ProgressPercentage}%";
+
+            // Lê o Tuple<int index, string status, string url>
+            if (e.UserState is Tuple<int, string, string> info)
+            {
+                int index = info.Item1;
+                string status = info.Item2;
+                string url = info.Item3;
+
+                if (index >= 0 && index < lvArquivos.Items.Count)
+                {
+                    var it = lvArquivos.Items[index];
+                    it.SubItems[2].Text = status;
+
+                    // Se quiser, você pode guardar a URL final no Tag2 (ex.: Dictionary) ou
+                    // até adicionar uma coluna "Link" depois. Aqui mantemos só o status.
+                    it.ToolTipText = string.IsNullOrEmpty(url) ? null : url; // dica rápida no hover
+                }
+            }
         }
 
         private void backgroundWorker_RunWorkerCompleted(object sender, System.ComponentModel.RunWorkerCompletedEventArgs e)
         {
             lblProgresso.Text = "Upload concluído!";
+
+            var links = e.Result as List<string> ?? new List<string>();
+            if (links.Count > 0)
+            {
+                string texto = string.Join(Environment.NewLine, links);
+                try
+                {
+                    Clipboard.SetText(texto);
+                    MessageBox.Show(
+                        "Upload concluído! Os links foram copiados para a área de transferência:\n\n" + texto,
+                        "Sucesso", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                }
+                catch
+                {
+                    // Em ambientes sem clipboard disponível
+                    MessageBox.Show(
+                        "Upload concluído! Seguem os links gerados:\n\n" + texto,
+                        "Sucesso", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                }
+            }
+            else
+            {
+                MessageBox.Show("Processo concluído. Nenhum link gerado (falhas ou lista vazia).",
+                    "Atenção", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+            }
         }
 
         private void btnTesteConect_Click(object sender, EventArgs e)
@@ -136,15 +281,16 @@ namespace FTP_Uploader
                     //RemotePath = txtCaminhoPasta.Text,
                     //Port = txtPorta.Text,
                     //Protocol = cboProtocolo.SelectedItem.ToString()
-                    Host = "147.79.95.20",
-                    Username = "u861738622",
-                    Password = "Carona@#@#7339",
-                    Port = "21",
+                    Host = "ftp.scot.agropecuaria.ws",
+                    Username = "scot",
+                    Password = "Malboro@102030",
+                    Port = "80",
                     Protocol = "FTP",
-                    RemotePath = "/domains/scotconsultoria.com.br/public_html/bancoImagensUP"
+                    RemotePath = "/public_html/dener-teste",
+                    BasicPublicUrl = "http://scot.agropecuaria.ws/dener-teste/"
                 };
 
-                if (ftp.Protocol == "FTP")
+                if (_ftp_teste.Protocol == "FTP")
                 {
                     string uri = $"ftp://{ftp.Host}:{ftp.Port}{ftp.RemotePath}";
                     FtpWebRequest request = (FtpWebRequest)WebRequest.Create(uri);
